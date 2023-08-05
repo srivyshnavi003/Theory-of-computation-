@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    int Q[] = {0, 1, 2};   // Finite set of states
+    char Sigma[] = {'a', 'b'};  // Finite set of input symbols (alphabet)
+    int delta[3][2][3] = {{{1, -1, -1}, {-1, 0, -1}}, {{-1, 2, -1}, {-1, 0, -1}}, {{-1, -1, 2}, {-1, -1, -1}}};  // Transition function
+    int q0 = 0; // Initial state
+    int F[] = {2};  // Final state
+
+    char str[100];
+    printf("Enter the input string: ");
+    scanf("%s", str);
+
+    int len = strlen(str);
+    int i, j, k, curr_state, next_state;
+
+    for(i = 0; i < len; i++) {
+        curr_state = q0;
+        next_state = -1;
+
+        for(j = i; j < len; j++) {
+            for(k = 0; k < 2; k++) {
+                if(Sigma[k] == str[j]) {
+                    if(delta[curr_state][k][0] != -1)
+                        next_state = delta[curr_state][k][0];
+                    if(delta[curr_state][k][1] != -1)
+                        next_state = delta[curr_state][k][1];
+                    if(delta[curr_state][k][2] != -1)
+                        next_state = delta[curr_state][k][2];
+                }
+            }
+            if(next_state == -1)
+                break;
+            curr_state = next_state;
+        }
+
+        if(next_state == F[0]) {
+            printf("Given string is accepted by the NFA.");
+            return 0;
+        }
+    }
+
+    printf("Given string is not accepted by the NFA.");
+
+    return 0;
+}
