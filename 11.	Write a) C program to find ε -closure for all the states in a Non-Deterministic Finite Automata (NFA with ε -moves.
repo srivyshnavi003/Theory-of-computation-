@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STATES 100
+#define MAX_SYMBOLS 100
+
+int n_states;  // Number of states in NFA
+int n_symbols;  // Number of symbols in NFA
+int n_epsilon_moves;  // Number of epsilon moves in NFA
+
+int transitions[MAX_STATES][MAX_SYMBOLS][MAX_STATES];  // Transition table
+int epsilon_moves[MAX_STATES][MAX_STATES];  // Epsilon move table
+int closure[MAX_STATES][MAX_STATES];  // Epsilon closure table
+
+// Add state to closure of state x
+void add_closure(int x, int state) {
+    int i;
+    // Check if state is already in closure of x
+    for (i = 0; i < n_states; i++) {
+        if (closure[x][i] == state) {
+            return;
+        }
+    }
+    // Add state to closure of x
+    closure[x][n_epsilon_moves] = state;
+    n_epsilon_moves++;
+}
+
+// Find epsilon closure of state x
+void epsilon_closure(int x) {
+    int i;
+    // Add state x to its own closure
+    closure[x][0] = x;
+    n_epsilon_moves = 1;
+    // Check if state x has any epsilon moves
+    for (i = 0; i < n_states; i++) {
+        if (epsilon_moves[x][i]) {
+            add_closure(x, i);
+            epsilon_closure(i);
+        }
+    }
+}
+
+int main() {
+    int i, j, k;
+    // Get input for NFA
+    printf("Enter the number of states in NFA: ");
+    scanf("%d", &n_states);
+    printf("Enter the number of symbols in NFA: ");
+    scanf("%d", &n_symbols);
+    printf("Enter the transition table for NFA:\n");
+    for (i = 0; i < n_states; i++) {
+        for (j = 0; j < n_symbols; j++) {
+            printf("delta(%d, %c): ", i, 'a' + j);
+            scanf("%d", &transitions[i][j][0]);
+        }
+    }
+    // Get input for epsilon move table
+    printf("Enter the epsilon move table for NFA:\n");
+    for (i = 0; i < n_states; i++) {
+        for (j = 0; j < n_states; j++) {
+            printf("epsilon_moves(%d, %d): ", i, j);
+            scanf("%d", &epsilon_moves[i][j]);
+        }
+    }
+    // Find epsilon closure for all states
+    for (i = 0; i < n_states; i++) {
+        epsilon_closure(i);
+        printf("Epsilon closure of state %d: { ", i);
+        for (j = 0; j < n_epsilon_moves; j++) {
+            printf("%d ", closure[i][j]);
+        }
+        printf("}\n");
+    }
+    return 0;
+}
