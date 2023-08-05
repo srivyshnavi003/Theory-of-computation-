@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_LENGTH 100
+
+char input_string[MAX_LENGTH];  // Input string
+
+// Function to check if a given string belongs to the language defined by the CFG
+int belongs_to_language(char *str) {
+    int i, j;
+    int n = strlen(str);
+    int table[MAX_LENGTH][MAX_LENGTH] = {0};  // Parsing table
+    // Fill in diagonal entries of table with A -> ε productions
+    for (i = 0; i < n; i++) {
+        if (str[i] == '0' || str[i] == '1') {
+            for (j = 0; j < n; j++) {
+                if (j == i) {
+                    table[i][j] = 1;
+                }
+            }
+        }
+    }
+    // Fill in remaining entries of table
+    for (j = 1; j < n; j++) {
+        for (i = j - 1; i >= 0; i--) {
+            int k;
+            for (k = i; k < j; k++) {
+                if (table[i][k] && table[k + 1][j]) {
+                    if ((str[i] == '0' && str[j] == '1') && (k == i)) {
+                        table[i][j] = 1;
+                        break;
+                    } else if (str[k + 1] == 'A') {
+                        table[i][j] = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    // If S -> input_string is a valid production, then the string belongs to the language
+    if (table[0][n - 1]) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int main() {
+    // Get input string from user
+    printf("Enter a string to check if it belongs to the language defined by the CFG:\n");
+    scanf("%s", input_string);
+    // Check if input string belongs to the language
+    if (belongs_to_language(input_string)) {
+        printf("The string %s belongs to the language defined by the CFG.\n", input_string);
+    } else {
+        printf("The string %s does not belong to the language defined by the CFG.\n", input_string);
+    }
+    return 0;
+}
